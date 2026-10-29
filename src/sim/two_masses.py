@@ -2,12 +2,12 @@
 
 import numpy as np
 import pygame
-from engine import Universe
+from engine import System
 
 W, H, SCALE = 800, 400, 150 # window size, pixels per metre
 DT, FPS = 1e-3, 60 # physics step, frames per second
 
-u = Universe()
+u = System()
 a = u.add_mass(1, (-1, 0, 0), v=(-0.5, 0, 0)) # equal masses at rest length, moving apart
 b = u.add_mass(1, (1, 0, 0), v=(0.5, 0, 0))
 u.add_spring(a, b, k=5)
