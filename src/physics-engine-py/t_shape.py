@@ -14,4 +14,4 @@ u.add_mass(m, (-x, 0, 0), (0, 0, v))
 u.add_mass(m, (0, 0, 0))
 u.add_mass(m, (0, y, 0))
 
-u.export_csv('T_shape.csv', 0.001, 60, 100)
+u.export_csv('t_shape_py.csv', 0.001, 60, 100)

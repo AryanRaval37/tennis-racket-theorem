@@ -1,11 +1,11 @@
 import numpy as np
 
 class System:
-    # rigid=True connects every pair of masses with a spring of stiffness k when the system is built
-    def __init__(self, rigid=False, k=1e5):
-        self.rigid, self.k = rigid, k
+    # rigid=True connects every pair of masses with a spring of stiffness k and damping c when the system is built
+    def __init__(self, rigid=False, k=1e5, c=0):
+        self.rigid, self.k, self.c = rigid, k, c
         self.x, self.v, self.m = [], [], []
-        self.springs = [] # (i, j, k, rest_length)
+        self.springs = [] # (i, j, k, c, rest_length)
         self.forces = [] # force functions f(x, v, t) -> (N, 3) array of forces on every mass
         self.t = 0.0
 
@@ -18,9 +18,10 @@ class System:
         return len(self.m) - 1
 
     # Adds a spring between ith and jth mass with stiffness k, unstretched at the current positions
-    def add_spring(self, i, j, k):
+    # c damps the spring: resists the masses moving apart or together, loses energy but keeps L
+    def add_spring(self, i, j, k, c=0):
         rest = np.linalg.norm(np.subtract(self.x[j], self.x[i]))
-        self.springs.append((i, j, k, rest))
+        self.springs.append((i, j, k, c, rest))
 
     # Adds a force function f(x, v, t) -> (N, 3) array
     # It gives you the current pos, velocities and time of the simulation, and your function should return the force on each mass
@@ -31,11 +32,11 @@ class System:
     def _build(self):
         # if body is rigid connect any two pairs of masses with a spring.
         if self.rigid:
-            linked = {(i, j) for i, j, _, _ in self.springs}
+            linked = {(i, j) for i, j, *_ in self.springs}
             for i in range(len(self.m)):
                 for j in range(i + 1, len(self.m)):
                     if (i, j) not in linked and (j, i) not in linked:
-                        self.add_spring(i, j, self.k)
+                        self.add_spring(i, j, self.k, self.c)
         self.x = np.array(self.x, float)
         self.v = np.array(self.v, float)
         self.m = np.array(self.m, float).reshape(-1, 1) # (N, 1)
@@ -44,10 +45,10 @@ class System:
 
     def _spring_force(self, x, v, t):
         F = np.zeros_like(x)
-        for (i, j, k, rest) in self.springs:
+        for (i, j, k, c, rest) in self.springs:
             d = x[j] - x[i] # points from i to j
             r = np.linalg.norm(d)
-            f = k * (r - rest) * d / r # stretched -> pulls i toward j
+            f = (k * (r - rest) + c * np.dot(v[j] - v[i], d) / r) * d / r # stretched or moving apart -> pulls i toward j
             F[i] += f
             F[j] -= f
         return F
@@ -74,7 +75,9 @@ class System:
     # ! AI generated function to export csv
     # Runs until time T like run(), writing every mass's position fps times per simulated second
     # Rows: t, x0, y0, z0, x1, y1, z1, ...   Lines starting with # are metadata
-    def export_csv(self, path, dt, fps, T):
+    def export_csv(self, name, dt, fps, T):
+        from pathlib import Path
+        runs = Path(__file__).resolve().parents[1] / "sim" / "runs" # csv exports go here
         t0, rows = self.t, []
         for frame in range(round((T - t0) * fps) + 1):
             self.run(dt, t0 + frame / fps)
@@ -83,7 +86,8 @@ class System:
         header = "\n".join([
             f"dt={dt} fps={fps}",
             "masses=" + ",".join(f"{m:g}" for m in self.m.ravel()),
-            "springs=" + ",".join(f"{i}-{j}" for i, j, _, _ in self.springs),
+            "springs=" + ",".join(f"{i}-{j}" for i, j, *_ in self.springs),
             ",".join(cols),
         ])
-        np.savetxt(path, rows, delimiter=",", fmt="%.12g", header=header) # full precision; read with np.loadtxt(path, delimiter=",")
+        runs.mkdir(parents=True, exist_ok=True)
+        np.savetxt(runs / name, rows, delimiter=",", fmt="%.12g", header=header) # full precision; read with np.loadtxt(path, delimiter=",")
