@@ -3,20 +3,23 @@
 \label{sec:methods}
 
 \subsection{Overview of the pipeline}
+\Cref{fig:pipeline} shows how the parts of the project fit together.
+Both solvers start from an initial spin and write their results to CSV files, and the analysis and animation scripts work from these files.
 \begin{figure}[htb]
     \centering
     \begin{tikzpicture}[node distance=0.5cm and 0.6cm,
         box/.style={draw,rounded corners=2pt,align=center,font=\scriptsize\sffamily,minimum height=0.9cm,text width=2.1cm},
         arr/.style={-{Stealth[length=1.8mm]},thick}]
-        \node[box] (ic) {Initial conditions\\ $\vb{v}_i=\vb*{\omega}\times\vb{r}_i$};
+        \node[box] (ic) {Initial spin\\ $\vb*{\omega}_0$};
         \node[box,right=of ic] (eng) {Spring-mass engine\\ Python / Rust, Verlet};
-        \node[box,below=of ic] (rb) {Rigid-body solver\\ Euler eqs.\ + quaternions};
-        \node[box,below=of eng] (csv) {CSV: $t$, $\vb{x}_i(t)$};
+        \node[box,below=of ic] (rb) {Rigid-body solver\\ Euler eqs.\ + quaternions, RK4};
+        \node[box,below=of eng] (csv) {CSV files};
         \node[box,below=of csv] (ana) {Analysis\\ NumPy / SciPy};
         \node[box,left=of ana] (out) {Plots \&\\ Manim videos};
         \draw[arr] (ic) -- (eng); \draw[arr] (eng) -- (csv); \draw[arr] (csv) -- (ana);
-        \draw[arr] (ic) -- (rb); \draw[arr] (rb) -- (ana); \draw[arr] (ana) -- (out);
+        \draw[arr] (ic) -- (rb); \draw[arr] (rb) -- (csv); \draw[arr] (ana) -- (out);
     \end{tikzpicture}
+    \caption{Overview of the simulation and analysis pipeline. The spring engines start from $\vb{v}_i=\vb*{\omega}_0\times\vb{r}_i$, the rigid-body solver from $\vb*{\Omega}_0=\vb*{\omega}_0$ and $q_0=(1,\vb{0})$.}
     \label{fig:pipeline}
 \end{figure}
 
@@ -65,7 +68,7 @@ Newton's equations for the masses are integrated with the velocity Verlet scheme
 Each mass gets half a velocity kick from the current forces, moves for a full step, and gets the second half kick from the forces at its new position.
 The forces from the end of one step are reused at the start of the next, so only one force evaluation is needed per step (\cref{lst:verlet}).
 Verlet is second order, time-reversible and symplectic, so the energy error stays bounded over long runs instead of drifting \cite{verlet1967,hairer2006}.
-This is the very reason we chose to use this over RK4 which is more accurate over one step.
+This is the very reason we chose to use this over RK4, which is more accurate over one step.
 
 \medskip\noindent\begin{minipage}{\linewidth}
 \begin{minted}[bgcolor=LightGray,breaklines,fontsize=\scriptsize]{python}
@@ -82,7 +85,7 @@ def step(self, dt):
 
 \subsection{Direct rigid body solver with quaternions}
 \label{sec:quaternions}
-While the spring model is general, but it is indirect and expensive: the body is only approximately rigid, and the stiff springs force a tiny time step.
+While the spring model is general, it is indirect and expensive: the body is only approximately rigid, and the stiff springs force a tiny time step.
 A truly rigid body needs much less information.
 Its state is just its angular velocity and its orientation, and nothing in it vibrates, so the time step only has to resolve the rotation itself.
 As an independent check we therefore also solve the rigid body equations directly (\code{quaternion.py}).
@@ -90,9 +93,9 @@ The angular velocity $\vb*{\Omega}$ in the body frame follows Euler's equations 
 The remaining question is how to store the orientation.
 
 \paragraph{Choosing a representation}
-Three Euler angles are the most familiar choice and use the minimum number of variables, but their equations of motion contain $1/\sin\theta$ and blow up when two rotation axes line up (This is something called gimble lock), and every step needs trigonometric functions.
-A $3\times3$ rotation matrix has to stores nine numbers for three degrees of freedom; numerical errors slowly make it non-orthogonal, so it stops being a pure rotation and has to be re-orthogonalised.
-We found that there is a very beautiful way of describing these rotations using Quaternions \cite{3b1b_quat}. These are complex numbers but in 4D.
+Three Euler angles are the most familiar choice and use the minimum number of variables, but their equations of motion contain $1/\sin\theta$ and blow up when two rotation axes line up (this is called gimbal lock), and every step needs trigonometric functions.
+A $3\times3$ rotation matrix has to store nine numbers for three degrees of freedom; numerical errors slowly make it non-orthogonal, so it stops being a pure rotation and has to be re-orthogonalised.
+We found that there is a very beautiful way of describing these rotations using quaternions \cite{3b1b_quat}. These are complex numbers but in 4D.
 A rotation by an angle $\phi$ about a unit axis $\vu{n}$ is written as
 \begin{equation}
     q = \left(\cos\tfrac{\phi}{2},\ \vu{n}\sin\tfrac{\phi}{2}\right), \qquad \abs{q}=1,
@@ -119,7 +122,15 @@ The first equation is linear in $q$ and contains only products and sums, with no
 The only constraint is $\abs{q}=1$, which numerical errors break slowly and which is restored by simply dividing $q$ by its length.
 The second relation rotates any point of the body into the lab frame, which we use for plots and animations.
 In total the state is seven numbers, $\vb*{\Omega}$ and $q$, and \cref{eq:euler,eq:quat} are solved together (\cref{lst:derivs}).
-The dimensions and values for the body used is a real tennis racket.
+
+\begin{sloppypar} % units and reference names would otherwise stick out of the column
+\paragraph{The racket}
+We use this solver for a real racket, the Babolat Pure Drive 2025, with the specifications listed by Tennis Warehouse \cite{tw_puredrive,twu_analyzer}: mass \SI{318}{g} strung, balance point \SI{32.99}{cm} from the butt, swingweight \SI{317}{kg.cm^2} and twistweight \SI{15.7}{kg.cm^2}.
+For the racket we number the axes from the handle (1, smallest moment) to the face normal (3, largest), the reverse of \cref{sec:inertia}; Euler's equations (\cref{eq:euler}) hold in any right-handed principal frame, and \cref{eq:lambda} is unchanged when $I_1$ and $I_3$ are swapped.
+The twistweight is the moment about the handle, $I_1=\SI{1.57e-3}{kg.m^2}$.
+The swingweight is measured about an axis \SI{10}{cm} from the butt, so the parallel-axis theorem gives $I_2=\SI{1.49e-2}{kg.m^2}$ about the centre of mass, and because the racket is nearly flat the perpendicular-axis theorem gives $I_3=I_1+I_2=\SI{1.65e-2}{kg.m^2}$.
+The racket is thrown with $\vb*{\Omega}_0=(-1.96,\,9.26,\,0)\,\si{rad/s}$, chosen so that after the \SI{0.7}{s} flight it has made exactly half a turn about its handle.
+\end{sloppypar}
 
 \medskip\noindent\begin{minipage}{\linewidth}
 \begin{minted}[bgcolor=LightGray,breaklines,fontsize=\scriptsize]{python}
@@ -168,7 +179,8 @@ def rk4(w, q, dt):
 \subsection{Observables from particle positions}
 \label{sec:observables}
 The spring engines only save the positions of the masses, 60 times per simulated second.
-Everything else is computed from these positions afterwards (\code{src/sim/}).
+Everything else is computed from these positions afterwards (\code{src/sim/}); only the conservation checks of \cref{sec:conservation} use the engine's own velocities.
+\begin{sloppypar} % long words would otherwise stick out of the column
 \begin{itemize}
     \item \textbf{Body axes.} The masses sit in opposite pairs on the principal axes, so the unit vector from one mass of a pair to the other gives that body axis $\vb{e}_k$.
     \item \textbf{Velocities.} Computed with \code{np.gradient}, which takes second-order finite differences of the saved positions.
@@ -179,8 +191,9 @@ Everything else is computed from these positions afterwards (\code{src/sim/}).
         \label{eq:omega-from-axes}
     \end{equation}
     \item \textbf{Angular momentum.} $\vb{L}=\sum_i m_i\,\vb{r}_i\times\vb{v}_i$ about the centre of mass, projected onto the body axes to draw the polhode.
-    \item \textbf{Flips.} A flip is counted each time the component of $\vb{L}$ along the middle axis changes sign.
+    \item \textbf{Flips.} A flip is counted each time the component of $\vb{L}$ along the intermediate axis changes sign.
 \end{itemize}
+\end{sloppypar}
 For the quaternion solver $\vb*{\Omega}$ and $q$ are the state itself, so nothing has to be reconstructed.
 
 \subsection{Implementation}
@@ -235,15 +248,15 @@ u.export_csv("six_masses_rs.csv", 1e-5, 60.0, 100.0)?;
 
 \paragraph{Output and analysis}
 Both engines write the same CSV format: a short header with $\Delta t$, the output rate, the masses and the list of springs, followed by one row per frame with the time and all positions.
-The analysis and animation scripts in \code{src/sim/} therefore work with either engine.
-They compute the observables of \cref{sec:observables} with NumPy \cite{numpy}, and produce the plots and the Manim animations \cite{manim}.
-We used AI tools to write the code of creating the videos and export the csv file in this format after the runs.
-Every other piece of code in both the python and rust engine and the quaternions file is handwritten. We could not have made the beautiful videos demonstrating this effect without AI and consider this as fair use.
+The animation scripts in \code{src/sim/} therefore work with either engine.
+They compute the observables of \cref{sec:observables} with NumPy \cite{numpy} and produce the Manim animations \cite{manim}.
+We used AI tools to write the code that creates the videos and the code that exports the CSV files in this format after the runs.
+Every other piece of code in the Python and Rust engines and the quaternion file is handwritten. We could not have made the beautiful videos demonstrating this effect without AI and consider this as fair use.
 
 
 \begin{table}[htb]
     \centering
-    \caption{Wall-clock time to integrate the octahedron for $T=\SI{100}{s}$ with $k=\SI{e5}{N/m}$, same initial state. Both engines end at the same positions to six digits.}
+    \caption{Wall-clock time to integrate the octahedron for $T=\SI{100}{s}$ with $k=\SI{e5}{N/m}$, same initial state. After $10^5$ steps both engines end with bit-for-bit identical positions and velocities.}
     \label{tab:performance}
     \small
     \begin{tabular}{@{}lccc@{}}
@@ -255,4 +268,4 @@ Every other piece of code in both the python and rust engine and the quaternions
         \bottomrule
     \end{tabular}
 \end{table}
-This shows how terribly slow python is for computation whenever loops are involved.
+This shows how terribly slow Python is for computation whenever loops are involved.

@@ -22,10 +22,12 @@ The price is a set of nonlinear constraint equations to solve iteratively at eve
 The free rigid body is integrable: with energy and $\abs{\vb{L}}$ conserved its motion is regular, and even near the separatrix the flips are periodic, with a flip time that grows only logarithmically as the tilt shrinks.
 This changes once integrability is broken, for example by gravity acting on an asymmetric top, a periodic external torque, or a second body attached by a joint.
 The separatrix then turns into a thin chaotic layer, and the flips occur at irregular times.
-Such forces can be added to our engine without changing the integrator, and the chaos measured by the divergence of two runs started a tiny distance apart (a Lyapunov exponent).
+Such forces can be added to our engine without changing the integrator, and the chaos could be measured by the divergence of two runs started a tiny distance apart (a Lyapunov exponent).
 
 \paragraph{Lie groups}
 Orientations form the rotation group $SO(3)$, a Lie group, and unit quaternions form its double cover.
-Our RK4 step moves $q$ off the unit sphere and projects it back by normalising, so it neither stays on the group nor preserves the structure of the equations, which is why its energy error accumulates (\cref{fig:conservation}).
+Our RK4 step moves $q$ off the unit sphere and projects it back by normalising, so it does not stay on the group.
+This is not what causes the energy error in \cref{fig:conservation}, though: $E$ and $\abs{\vb{L}}$ depend only on $\vb*{\Omega}$, and Euler's equations do not involve $q$.
+That error builds up because RK4 does not preserve the structure of Euler's equations.
 Lie-group integrators instead update the orientation with the exponential map, $q_{n+1}=q_n\otimes\exp\!\big(\tfrac12\vb*{\Omega}\Delta t\big)$, which stays on the group exactly.
 Splitting the free rigid body into rotations about its three axes, each of which can be solved exactly, gives symplectic methods that conserve $\abs{\vb{L}}$ exactly and keep the energy error bounded \cite{hairer2006}, the same advantage Verlet gives the spring model.

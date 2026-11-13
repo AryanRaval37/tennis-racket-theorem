@@ -18,9 +18,10 @@ For a body made of point masses $m_i$ at positions $\vb{r}_i$ from the centre of
 \end{equation}
 and $\vb{L}=\mathsf{I}\,\vb*{\omega}$.
 In general $\vb{L}$ and $\vb*{\omega}$ are not parallel.
-Since $\mathsf{I}$ is symmetric, there are three perpendicular \emph{principal axes} in which it is diagonal, with principal moments $I_1>I_2>I_3$.
+Since $\mathsf{I}$ is symmetric, there are three perpendicular \emph{principal axes} in which it is diagonal.
+We number them so that the principal moments satisfy $I_1>I_2>I_3$, and call them the \emph{major}, \emph{intermediate} and \emph{minor} axes.
 Spinning about any one of them keeps $\vb{L}$ parallel to $\vb*{\omega}$.
-Our main body is an octahedron of six \SI{1}{kg} masses at $(\pm1,0,0)$, $(0,\pm2,0)$ and $(0,0,\pm3)$\,m, whose principal axes are $x$, $y$ and $z$ with $I_x=26$, $I_y=20$ and $I_z=\SI{10}{kg.m^2}$, so $y$ is the middle axis.
+Our main body is an octahedron of six \SI{1}{kg} masses at $(\pm1,0,0)$, $(0,\pm2,0)$ and $(0,0,\pm3)$\,m, whose principal axes are $x$, $y$ and $z$ with $I_x=26$, $I_y=20$ and $I_z=\SI{10}{kg.m^2}$, so $x$, $y$ and $z$ are its major, intermediate and minor axes (1, 2 and 3).
 
 \subsection{Euler's equations}
 \label{sec:euler}
@@ -41,10 +42,10 @@ They conserve the kinetic energy and the magnitude of the angular momentum,
 with $L_k=I_k\Omega_k$.
 These two quantities are what we monitor to check our simulations (\cref{sec:conservation}).
 
-\subsection{Instability of the middle axis}
+\subsection{Instability of the intermediate axis}
 \label{sec:stability}
 Suppose the body spins with rate $\Omega$ about one principal axis and is given a small tilt.
-It can be shown that about the axes of largest and smallest moment the tilt only oscillates, but about the intermediate axis it grows as $e^{\lambda t}$ with
+It can be shown that about the major and minor axes the tilt only oscillates, but about the intermediate axis it grows as $e^{\lambda t}$ with
 \begin{equation}
     \lambda = \Omega\sqrt{\frac{(I_1-I_2)(I_2-I_3)}{I_1 I_3}}.
     \label{eq:lambda}
@@ -63,8 +64,9 @@ We test this in \cref{sec:res-fliptime}.
 \Cref{eq:conserved} gives a simple picture of the motion.
 In the body frame $\vb{L}$ must lie on a sphere of radius $L$ and, at the same time, on the energy ellipsoid.
 It therefore moves along the curve where the two surfaces meet, called the polhode (\cref{fig:polhode-family}).
-Near the largest and smallest axes these curves are small closed loops, so $\vb{L}$ stays close to the axis and the rotation is stable.
-Near the middle axis the two surfaces cross, and the special curve through this axis, the separatrix, carries $\vb{L}$ all the way to the opposite side.
+Near the major and minor axes these curves are small closed loops, so $\vb{L}$ stays close to the axis and the rotation is stable.
+Near the intermediate axis the two surfaces cross, and the curve through this axis, the separatrix, separates the loops around the major axis from those around the minor axis.
+On the separatrix itself $\vb{L}$ would take infinitely long to leave the intermediate axis, but on the curves just beside it $\vb{L}$ travels all the way to the opposite side and back, again and again: each passage is a flip.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Images/polhode_vandamme.png}

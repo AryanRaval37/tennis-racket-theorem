@@ -9,20 +9,20 @@ The playback speed is chosen so that the motion is easy to follow: the octahedro
 The videos are rendered at $3840\times2160$ pixels and 60 frames per second.
 Seeing the body and the plots side by side also served as a quick check of the simulations, for example that $\vb{L}$ really stays fixed in space while the body turns over.
 
-\Cref{fig:vis-omega,fig:vis-polhode} follow the octahedron spun about its middle axis, the first as a still from the video and the second as a plot of $\vb{L}$ seen from the body, made from the same data.
-\Cref{fig:vis-racket} shows one toss of a tennis racket computed with the quaternion solver, and \cref{fig:vis-major} shows a damped body moving to its axis of largest moment.
+\Cref{fig:vis-omega,fig:vis-polhode} follow the octahedron spun about its intermediate axis, the first as a still from the video and the second as a plot of $\vb{L}$ seen from the body, made from the same data.
+\Cref{fig:vis-racket} shows one toss of a tennis racket computed with the quaternion solver, and \cref{fig:vis-major} shows a damped body moving to its major axis.
 
 \begin{figure*}[tp]
     \centering
     \includegraphics[width=0.9\textwidth]{Images/vis_omega.png}
-    \caption{Octahedron (\cref{sec:inertia}) spun at \SI{1}{rad/s} about its middle axis $y$ (spring engine, $t=0$--\SI{100}{s}). Left: the body at the end of the run. Right: the body-frame angular velocity. $\Omega_2$ stays almost constant for long stretches and then suddenly reverses sign; each reversal is a flip. During a flip the spin briefly moves into the other two axes, giving the pulses in $\Omega_1$ and $\Omega_3$. The flips repeat regularly, here three times in \SI{100}{s}.}
+    \caption{Octahedron (\cref{sec:inertia}) spun at \SI{1}{rad/s} about its intermediate axis $y$ (spring engine, $t=0$--\SI{100}{s}). Left: the body at the end of the run. Right: the body-frame angular velocity. $\Omega_2$ stays almost constant for long stretches and then suddenly reverses sign; each reversal is a flip. During a flip the spin briefly moves into the other two axes, giving the pulses in $\Omega_1$ and $\Omega_3$. The flips repeat regularly, here three times in \SI{100}{s}.}
     \label{fig:vis-omega}
 \end{figure*}
 
 \begin{figure*}[tp]
     \centering
     \includegraphics[width=0.75\textwidth]{Images/polhode_sim.pdf}
-    \caption{Angular momentum in the body frame for the same run, plotted from the simulation data. (a) The energy ellipsoid of this run (dark grey) cuts the sphere $\abs{\vb{L}}=\text{const}$ (light grey); $\vb{L}$ must stay on the curves where they meet, which here are the separatrix crossing at the middle axis $\vu{e}_y$. (b) Polhodes at other energies: blue curves circle the stable axis of largest moment $\vu{e}_x$, red curves the stable axis of smallest moment $\vu{e}_z$, and the dashed separatrix crosses at the unstable middle axis. The simulated $\vb{L}/\abs{\vb{L}}$ over the whole \SI{100}{s} (orange) lies on the separatrix; $2E/L^2$ changes by less than $10^{-5}$ of its value. (c) Body-frame components of $\vb{L}$: $L_y$ jumps between $\pm1$ at each flip (dotted lines, every \SI{31.2}{s}), while $\vb{L}$ passes through the $x$ side of the sphere.}
+    \caption{Angular momentum in the body frame for the same run, plotted from the simulation data. (a) The energy ellipsoid of this run (dark grey) cuts the sphere $\abs{\vb{L}}=\text{const}$ (light grey); $\vb{L}$ must stay on the curves where they meet, which here lie almost on the separatrix through the intermediate axis $\vu{e}_y$. (b) Polhodes at other energies: blue curves circle the stable major axis $\vu{e}_x$, red curves the stable minor axis $\vu{e}_z$, and the dashed separatrix crosses at the unstable intermediate axis. The simulated $\vb{L}/\abs{\vb{L}}$ over the whole \SI{100}{s} (orange) runs just beside the separatrix, too close to tell apart here (\cref{sec:analytic}); $2E/L^2$ changes by less than $10^{-5}$ of its value. (c) Body-frame components of $\vb{L}$: $L_y$ jumps between $\pm1$ at each flip (dotted lines, every \SI{31.2}{s}), while $\vb{L}$ passes through the $x$ side of the sphere.}
     \label{fig:vis-polhode}
 \end{figure*}
 
@@ -41,13 +41,13 @@ Seeing the body and the plots side by side also served as a quick check of the s
     \begin{minipage}[c]{0.48\textwidth}\centering
         \includegraphics[width=\linewidth]{Images/vis_racket_plot.png}
     \end{minipage}
-    \caption{One toss of a tennis racket (\code{quaternion.py}, RK4 with quaternions). The racket is thrown spinning end over end, about its middle axis, with a small twist about the handle. The two sides of the strings are drawn in different colours (purple and yellow). Left: snapshots during the \SI{0.7}{s} flight; the racket comes back with the other side of the face showing, having made a half turn about its handle. Right: the body-frame angular velocity. As $\Omega_2$ (middle axis) reverses, the spin passes through the handle ($\Omega_1$) and face-normal ($\Omega_3$) axes, the same pattern as one flip in \cref{fig:vis-omega}.}
+    \caption{One toss of a tennis racket (\code{quaternion.py}, RK4 with quaternions). The racket is thrown spinning end over end, about its intermediate axis, with a twist about the handle of 21\% of the main spin, which tilts $\vb{L}$ only \ang{1.3} from the intermediate axis. The two sides of the strings are drawn in different colours (purple and yellow). Left: snapshots during the \SI{0.7}{s} flight; the racket comes back with the other side of the face showing, having made a half turn about its handle. Right: the body-frame angular velocity. As $\Omega_2$ (intermediate axis) reverses, the spin passes through the handle ($\Omega_1$) and face-normal ($\Omega_3$) axes, the same pattern as one flip in \cref{fig:vis-omega}.}
     \label{fig:vis-racket}
 \end{figure*}
 
 \begin{figure*}[tp]
     \centering
     \includegraphics[width=0.8\textwidth]{Images/vis_major_axis.png}
-    \caption{A damped body (soft springs, $k=\SI{1}{N/m}$, $c=\SI{0.7}{N.s/m}$) started spinning about its axis of \emph{smallest} moment $z$, slightly tilted toward $x$, shown at $t=\SI{600}{s}$. Top right: the spin about $z$ ($\Omega_3$) dies away while the spin about $x$, the axis of largest moment, grows and settles. Bottom right: the kinetic energy falls and levels off near $L^2/2I_{\max}\approx\SI{2.0}{J}$, the lowest energy possible at fixed $\vb{L}$ (\cref{sec:res-major}). Even rotation about the stable minimum axis is not stable once the body can lose energy.}
+    \caption{A damped body (soft springs, $k=\SI{1}{N/m}$, $c=\SI{0.7}{N.s/m}$) started spinning about its \emph{minor} axis $z$, slightly tilted toward $x$, shown at $t=\SI{600}{s}$. Top right: the spin about $z$ ($\Omega_3$) dies away while the spin about $x$, the major axis, grows and settles. Bottom right: the kinetic energy falls and levels off near $L^2/2I_{\max}\approx\SI{2.0}{J}$, the lowest energy possible at fixed $\vb{L}$ (\cref{sec:res-major}). Even rotation about the minor axis, stable for a rigid body, is not stable once the body can lose energy.}
     \label{fig:vis-major}
 \end{figure*}

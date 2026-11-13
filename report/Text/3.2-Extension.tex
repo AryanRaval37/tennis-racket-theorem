@@ -7,9 +7,9 @@ As an extension of the project we study what this energy loss does to the rotati
 \paragraph{The major axis rule}
 No external torque acts, so $\vb{L}$ is still exactly conserved and only the energy $E$ decreases.
 For a fixed $L$, the energy of rotation about a principal axis is $E=L^2/2I$, which is smallest for the largest $I$.
-A body that keeps losing energy at fixed $L$ must therefore end up spinning about its axis of maximum moment of inertia, whatever axis it started on.
-This means that for a real, slightly flexible body only the major axis is truly stable: even spin about the minimum axis, which is stable for a rigid body (\cref{sec:stability}), slowly drifts away.
-This is what happened to Explorer 1 in 1958, and it is why the Earth, which spins about its axis of largest moment, keeps a steady rotation.
+A body that keeps losing energy at fixed $L$ must therefore end up spinning about its major axis, whatever axis it started on.
+This means that for a real, slightly flexible body only the major axis is truly stable: even spin about the minor axis, which is stable for a rigid body (\cref{sec:stability}), slowly drifts away.
+This is what happened to Explorer 1 in 1958, and it is why the Earth, which spins about its major axis, keeps a steady rotation.
 
 \paragraph{Model}
 The spring model can show this directly, because its body is not perfectly rigid.
@@ -21,7 +21,7 @@ This gives a useful check of the code: $\abs{\vb{L}}$ must stay constant while $
 \begin{sloppypar} % units and symbols here would otherwise stick out of the column
 We use soft springs, $k=\SI{1}{N/m}$, and $c=\SI{0.7}{N.s/m}$, so that the body wobbles noticeably and settles within a few hundred seconds, instead of the far longer time a nearly rigid body would take.
 The soft springs also allow a larger time step, $\Delta t=\SI{5}{ms}$.
-The octahedron starts spinning at \SI{1}{rad/s} about $z$, its axis of smallest moment, tilted slightly towards $x$, $\vb*{\omega}_0=(0.1,0,1)\,\si{rad/s}$, and is followed for \SI{1000}{s} with both engines.
+The octahedron starts spinning at \SI{1}{rad/s} about $z$, its minor axis, tilted slightly towards $x$, $\vb*{\omega}_0=(0.1,0,1)\,\si{rad/s}$, and is followed for \SI{1000}{s} with both engines.
 
 \paragraph{Numerical details}
 With a velocity-dependent force, velocity Verlet is no longer exactly symplectic, which is expected since the energy is meant to fall.
