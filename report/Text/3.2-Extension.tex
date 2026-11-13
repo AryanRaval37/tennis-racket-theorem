@@ -1,0 +1,36 @@
+\section{Extension: energy loss in a non-rigid body}
+\label{sec:extension}
+So far the body has been almost perfectly rigid, and its energy has been conserved.
+A real body is not perfectly rigid: it flexes slightly as it spins, and internal friction turns some of the energy of this wobbling into heat.
+As an extension of the project we study what this energy loss does to the rotation.
+
+\paragraph{The major axis rule}
+No external torque acts, so $\vb{L}$ is still exactly conserved and only the energy $E$ decreases.
+For a fixed $L$, the energy of rotation about a principal axis is $E=L^2/2I$, which is smallest for the largest $I$.
+A body that keeps losing energy at fixed $L$ must therefore end up spinning about its axis of maximum moment of inertia, whatever axis it started on.
+This means that for a real, slightly flexible body only the major axis is truly stable: even spin about the minimum axis, which is stable for a rigid body (\cref{sec:stability}), slowly drifts away.
+This is what happened to Explorer 1 in 1958, and it is why the Earth, which spins about its axis of largest moment, keeps a steady rotation.
+
+\paragraph{Model}
+The spring model can show this directly, because its body is not perfectly rigid.
+We give every spring a damping coefficient $c$, the second term in \cref{lst:spring}, which resists the two masses moving apart or together.
+When the body turns rigidly the springs keep their length and the damping does nothing; only the wobbling is damped.
+Like the spring force, the damping force is central and equal and opposite, so it removes energy but conserves momentum and angular momentum exactly.
+This gives a useful check of the code: $\abs{\vb{L}}$ must stay constant while $E$ falls.
+
+\begin{sloppypar} % units and symbols here would otherwise stick out of the column
+We use soft springs, $k=\SI{1}{N/m}$, and $c=\SI{0.7}{N.s/m}$, so that the body wobbles noticeably and settles within a few hundred seconds, instead of the far longer time a nearly rigid body would take.
+The soft springs also allow a larger time step, $\Delta t=\SI{5}{ms}$.
+The octahedron starts spinning at \SI{1}{rad/s} about $z$, its axis of smallest moment, tilted slightly towards $x$, $\vb*{\omega}_0=(0.1,0,1)\,\si{rad/s}$, and is followed for \SI{1000}{s} with both engines.
+
+\paragraph{Numerical details}
+With a velocity-dependent force, velocity Verlet is no longer exactly symplectic, which is expected since the energy is meant to fall.
+The damping force computed at the end of a step uses the velocity available at that point, the half-step velocity $\vb{v}^{n+1/2}$ (\cref{lst:verlet}).
+This adds a small error, of relative size about $c\Delta t/m\approx0.004$ per step.
+\end{sloppypar}
+
+\paragraph{Expected outcome}
+The initial angular momentum is $\vb{L}=(I_x\omega_x,0,I_z\omega_z)=(2.6,0,10)\,\si{kg.m^2/s}$, so $L\approx10.3\,\si{kg.m^2/s}$ and $E_0\approx\SI{5.1}{J}$.
+If the body ends up spinning about $x$, it should turn at $\Omega_x=L/I_x\approx\SI{0.40}{rad/s}$ with $E=L^2/2I_x\approx\SI{2.05}{J}$.
+These values are only approximate, because the soft springs let the body stretch and change its moments of inertia while it spins.
+The run is shown in \cref{fig:vis-major} and analysed in \cref{sec:res-major}.

@@ -1,0 +1,40 @@
+\begin{frontmatter}
+%
+% Title:
+%------------------------------------
+\title{%
+The Tennis Racket Theorem: A Computational Study of the Intermediate Axis Instability\\
+\small Computational Physics (EP4210)
+}
+%
+% Authors:
+%------------------------------------
+\author{Aryan Raval (EP25BTECH11007)}
+\author{Vishal Yalavarti (EP25BTECH11033)}  % TODO roll number
+\author{Yug Gandhi (EP25BTECH11035)}        % TODO roll number
+%
+% Date:
+%------------------------------------
+\newdate{dateName}{10}{11}{2026}
+\renewcommand*{\today}{\DayMonthYearDateFormat\displaydate{dateName}}
+%
+% Abstract:
+%------------------------------------
+\NameOfAbstract{Abstract}
+\begin{abstract}
+The Tennis Racket Theorem also known as the Dzhanibekov effect is when a body rotating close to its interdiate axis (explained below) periodically flips its orientation in space.
+Our project involved observing this effect, simulating the rotation of rigid bodies given their initial orientation and angular velocities using two models,
+(1) A set of masses connected by rigid springs and (2) Using Quaternions and Euler Equations to store orientation. The first model is basically a simple physics engine that was written in both python and rust
+and the second model written in python, is a more direct approach that updates the orientation of the body using rk4 integration. We see that both our models agree as the stiffness of the springs is increased in the first model and the timestep is reduced.
+An extension to this project that we explored was adding damping to the springs to observe the fact that a non-rigid body that can loose energy by 'wobbling' will eventually stabilise its rotation to the axis with maximum moment of inertia.
+This also explains why the rotation of Earth is stable and why it won't flip upside down.
+
+% \hint{150--250 words, one sentence each:
+% (1) what the Dzhanibekov / tennis racket effect is;
+% (2) what we simulated: a free rigid body built from point masses joined by stiff springs, integrated with velocity Verlet (Python + Rust engines), plus a direct Euler-equation / quaternion solver;
+% (3) headline results: flip only about the middle axis, polhode matches the sphere--ellipsoid intersection, $t_{\text{flip}}\propto\lambda^{-1}\ln(1/\varepsilon)$ with fitted vs predicted $\lambda$, damping drives the body to the max-$I$ axis;
+% (4) validation: agreement with the Jacobi elliptic solution, convergence order, energy/$\abs{\vb{L}}$ drift, numbers with errors.}
+\end{abstract}
+%
+\end{frontmatter}
+%

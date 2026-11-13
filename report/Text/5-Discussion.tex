@@ -1,0 +1,31 @@
+\section{Discussion}
+\label{sec:discussion}
+Both models reproduce the tennis racket effect.
+In the spring model nothing about rigid bodies is coded, yet the flips appear from Newton's law for six point masses alone, at the times predicted by Euler's equations and the exact solution, and with the growth rate of the linear theory.
+With damping added, the same model also shows the major axis rule.
+
+The two models suit different jobs.
+The spring model is general: any shape can be built from masses, and effects beyond a rigid body, such as flexing and internal friction, come for free.
+Its cost is stiffness: the time step is set by spring vibrations several hundred times faster than the rotation, so the main run needed $10^7$ steps, and was only practical after moving from Python to Rust.
+The rigid-body solver with quaternions has only seven variables and no fast motion, so a step of \SI{50}{ms} already keeps the energy to $10^{-9}$, but it can only describe a perfectly rigid body.
+The main limitation of our analysis was not in either solver but in recovering velocities from positions saved at \SI{60}{Hz}, which sets the error floor of about $10^{-4}$.
+
+\subsection{Extensions}
+\label{sec:extensions}
+\paragraph{Constraint solvers}
+Instead of stiff springs, the distances between the masses can be held fixed as exact constraints.
+SHAKE \cite{shake1977} and its velocity form RATTLE \cite{rattle1983} add Lagrange-multiplier forces to each Verlet step so that every bond length is restored exactly, while keeping Verlet's symplectic, time-reversible character \cite{hairer2006}.
+This removes the fast vibrations, so the time step would be set by the rotation, as for the rigid-body solver, while keeping the generality of a particle model.
+The price is a set of nonlinear constraint equations to solve iteratively at every step.
+
+\paragraph{Chaos}
+The free rigid body is integrable: with energy and $\abs{\vb{L}}$ conserved its motion is regular, and even near the separatrix the flips are periodic, with a flip time that grows only logarithmically as the tilt shrinks.
+This changes once integrability is broken, for example by gravity acting on an asymmetric top, a periodic external torque, or a second body attached by a joint.
+The separatrix then turns into a thin chaotic layer, and the flips occur at irregular times.
+Such forces can be added to our engine without changing the integrator, and the chaos measured by the divergence of two runs started a tiny distance apart (a Lyapunov exponent).
+
+\paragraph{Lie groups}
+Orientations form the rotation group $SO(3)$, a Lie group, and unit quaternions form its double cover.
+Our RK4 step moves $q$ off the unit sphere and projects it back by normalising, so it neither stays on the group nor preserves the structure of the equations, which is why its energy error accumulates (\cref{fig:conservation}).
+Lie-group integrators instead update the orientation with the exponential map, $q_{n+1}=q_n\otimes\exp\!\big(\tfrac12\vb*{\Omega}\Delta t\big)$, which stays on the group exactly.
+Splitting the free rigid body into rotations about its three axes, each of which can be solved exactly, gives symplectic methods that conserve $\abs{\vb{L}}$ exactly and keep the energy error bounded \cite{hairer2006}, the same advantage Verlet gives the spring model.

@@ -1,0 +1,63 @@
+\newlength{\bibsep}
+\documentclass[nonatbib,5p,a4paper]{elsarticle}  % 5p for two columns, 1p for 1 column (this is specific for the elsearticle)
+\usepackage[english,norsk,nynorsk]{babel}        % Language
+\usepackage[DatePublished]{Code/NTNU-lab}        % remove [DatePublished] to remove dates
+\usepackage{csquotes}                            % Must be loaded when babel is loaded to avoid error.
+\input{Code/preamble}                            % Write all preamble code in this file to keep it organised and tidy.
+
+% ---------- Additions for the tennis racket report ----------
+\usepackage{xcolor,graphicx,booktabs,tabularx}
+\usepackage[section]{placeins}                   % keeps each section's floats inside that section
+\usetikzlibrary{arrows.meta,positioning}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} % ragged-right X column for wrapping table cells
+
+\newif\ifshowhints
+\showhintstrue                                   % \showhintsfalse hides every leftover hint
+\definecolor{hintcolor}{RGB}{31,90,180}
+% \hint{...}: block telling you what to write here. \hintin{...}: same, inline (use in captions)
+\newcommand{\hint}[1]{\ifshowhints\par\noindent{\sloppy\small\sffamily\color{hintcolor}\textbf{[To write]} #1\par}\fi}
+\newcommand{\hintin}[1]{\ifshowhints{\color{hintcolor}[#1]}\fi}
+% \figslot{file}{what it shows}: shows Images/file if it exists, otherwise a framed placeholder
+\newcommand{\figslot}[2]{\IfFileExists{Images/#1}{\includegraphics[width=\linewidth]{Images/#1}}{%
+  \fbox{\parbox[c][0.35\linewidth][c]{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\centering\footnotesize\sffamily\color{gray}%
+  \textbf{Images/\detokenize{#1}}\\[2pt]#2}}}}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\appto{\bibsetup}{\sloppy}                         % long titles/URLs in the two-column bibliography
+\newcommand{\repourl}{https://github.com/AryanRaval37/tennis-racket-theorem}
+% -------------------------------------------------------------
+
+\addbibresource{Bibliography/Sources.bib}        % Selects the Bibliography file.
+
+
+\begin{document}
+\selectlanguage{english}                         % Sets the language of the document.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{Text/0-frontmatter}
+\input{Text/1-Introduction}
+\input{Text/2-Theory}
+\input{Text/3-Method}
+\input{Text/3.1-Visualisation}
+\input{Text/3.2-Extension}
+\input{Text/4-Results}
+\input{Text/4.1-Validation}
+\input{Text/5-Discussion}
+%\clearpage                                     % Sometimes you want the rest on separate pages.
+\input{Text/Acknowledgements}                   % Use of AI tools
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Bibliography
+%--------------------
+\printbibliography
+
+%\clearpage                                     % Sometimes it is useful to have appendix on separate page.
+%\onecolumn                                     % If you want 1 column for appendix.
+\input{Text/Appendix}                           % Comment out to exclude appendix
+
+\end{document}
+
+% Template: "NTNU Laboratory Report in Physics" by Vebjørn S. Førde, CC BY 4.0
+% https://www.overleaf.com/latex/templates/ntnu-laboratory-report-in-physics/zrkxstqtpdpv
+% Changes: extra packages and helper macros above, Validation section and content in Text/.
