@@ -6,6 +6,7 @@ m = 1 # 1 kg
 x = 1
 y = 2
 
+# real dirty way of doing this, should just use omega
 v = 1 # note this is velocity of the mass on x axis
 # spinning about intermediate axes meaning all 4 masses not on y axis with velocty
 u = System(rigid=True)

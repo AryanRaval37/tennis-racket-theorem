@@ -1,3 +1,6 @@
+// The new physics engine built in rust
+// soooo much faster than python
+
 use crate::body::RigidBody;
 use std::fs::{self, File};
 use std::io::{self, BufWriter, Write};

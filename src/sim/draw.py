@@ -26,12 +26,16 @@ def read_springs(path):
             return [tuple(int(n) for n in pair.split("-")) for pair in pairs]
 
 
-def body_omega(times, positions):
+def body_axes(positions):
     # Body axes from the three mass pairs (0-1 on x, 2-3 on y, 4-5 on z), as unit vectors
     e = np.stack([positions[:, 0] - positions[:, 1],
                   positions[:, 2] - positions[:, 3],
                   positions[:, 4] - positions[:, 5]], axis=1) # e[row, k] = axis k
-    e /= np.linalg.norm(e, axis=2, keepdims=True)
+    return e / np.linalg.norm(e, axis=2, keepdims=True)
+
+
+def body_omega(times, positions):
+    e = body_axes(positions)
     de = np.gradient(e, times, axis=0) # how fast each axis is moving
     # Each axis moves as de_k = omega x e_k. Summing e_k x de_k over the 3 axes gives 2 omega
     omega = 0.5 * np.cross(e, de).sum(axis=1)
